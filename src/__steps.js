@@ -29,5 +29,8 @@ Provider
  gitlogin set up 
 
 15. activate the auth provider (create app , provide redirect url, client id and client secret) get it form github settings > developer settings > create new app
- 16.
+ 
+-----------
+email pass set up email verify and password reset
+---------------
  */
