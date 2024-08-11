@@ -1,5 +1,11 @@
-import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  sendEmailVerification,
+  updateProfile,
+} from "firebase/auth";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { app } from "../Firebase/firebaseConfig";
 
 const auth = getAuth(app);
@@ -10,13 +16,17 @@ const Register = () => {
   const [success, setSuccess] = useState("");
 
   const handleSubmit = (event) => {
+    
     //stop page refresh
     event.preventDefault();
     setSuccess("");
     setError("");
+
     //get data from the form
     const email = event.target.email.value;
     const password = event.target.password.value;
+    const name = event.target.name.value;
+
     //validate
     if (!/(?=.*[!@#$%^&*])/.test(password)) {
       setError("Password must contain a special character");
@@ -31,6 +41,7 @@ const Register = () => {
       setError("Password must contain a number");
       return;
     }
+
     //create a password
     createUserWithEmailAndPassword(auth, email, password)
       .then((result) => {
@@ -38,13 +49,33 @@ const Register = () => {
         setError("");
         event.target.reset();
         setSuccess("User created successfully");
+        verifyEmail(result.user);
+        updateUser(result.user, name);
+        alert("Please verify your email address");
       })
       .catch((error) => {
         console.log(error);
         setError(error.message);
       });
   };
+  const updateUser = (user, name) => {
 
+    updateProfile(user, {
+      displayName: name,
+    });
+
+  };
+  const verifyEmail = (currentUser) => {
+
+    sendEmailVerification(currentUser)
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+  };
   //   const handleChange = (event) => {
   //     console.log(event.target.value);
   //     setEmail(event.target.value);
@@ -58,6 +89,15 @@ const Register = () => {
     <div style={{ textAlign: "center" }}>
       <h4>Please Register</h4>
       <form onSubmit={handleSubmit}>
+        <input
+          //   onChange={handleChange}
+          type="text"
+          name="name"
+          id="name"
+          placeholder="Your name"
+          required
+        />
+        <br />
         <input
           //   onChange={handleChange}
           type="email"
@@ -78,6 +118,11 @@ const Register = () => {
         <br />
         <input type="submit" value="Register" />
       </form>
+      <p>
+        <small>
+          Already have an account? <Link to="/login">Login</Link>
+        </small>
+      </p>
       <p style={{ color: "red" }}>{error}</p>
       <p style={{ color: "green" }}>{success}</p>
     </div>
